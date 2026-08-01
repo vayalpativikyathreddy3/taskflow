@@ -57,5 +57,19 @@ Author: Vayalpati Vikyath Reddy
 GitHub: https://github.com/vayalpativikyathreddy3
 Live Demo: https://taskflow-kappa-pink.vercel.app
 
+Screenshots:
+1. Landing Page-
+The landing page provides an introduction to TaskFlow and gives users a quick overview of the application. It includes navigation links, a brief description of the project, and a button to launch the task manager.
+2. About TaskFlow-
+This page explains the purpose of TaskFlow, its objectives, and the main features offered by the application. It helps users understand how the project can improve task management and productivity.
+3. Dashboard-
+The dashboard displays an overview of the user's tasks, project statistics, and productivity information. It serves as the main screen where users can quickly monitor their progress.
+4. Tasks and Calendar-
+This section allows users to create, update, and manage tasks while also viewing them in a calendar format. It helps users organize their work and keep track of important deadlines.
+5. Kanban Board and Analytics-
+The Kanban board provides a visual way to organize tasks by different stages, while the analytics section displays charts and reports to help users understand their productivity and task completion trends.
+6. AI Assistant and Settings-
+This section includes the built-in AI assistant, which provides productivity suggestions and task recommendations. Users can also customize application settings, manage themes, and configure additional preferences.
+
 Conclusion:
 TaskFlow is a complete productivity and task management application that combines project organization, time management, analytics, and planning into a single platform. The project demonstrates the use of core web technologies to build a feature-rich application without relying on external frameworks. Its modular structure, responsive design, and user-friendly interface make it suitable for students, professionals, and anyone looking to manage tasks efficiently.
