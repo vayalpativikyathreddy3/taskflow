@@ -53,5 +53,9 @@ Display detailed previews in the calendar.
 Introduce additional productivity reports and insights.
 Expand AI assistant capabilities with more personalized suggestions.
 
+Author: Vayalpati Vikyath Reddy
+GitHub: https://github.com/vayalpativikyathreddy3
+Live Demo: https://taskflow-kappa-pink.vercel.app
+
 Conclusion:
 TaskFlow is a complete productivity and task management application that combines project organization, time management, analytics, and planning into a single platform. The project demonstrates the use of core web technologies to build a feature-rich application without relying on external frameworks. Its modular structure, responsive design, and user-friendly interface make it suitable for students, professionals, and anyone looking to manage tasks efficiently.
