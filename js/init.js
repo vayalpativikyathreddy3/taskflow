@@ -1,0 +1,32 @@
+/*==================== INIT (runs last, after all features are defined) ====================*/
+updateGreeting();
+setInterval(updateGreeting, 1000);
+loadProjects();
+loadTasks();
+tasks.forEach(t => {
+    if(!Array.isArray(t.tags)) t.tags = [];
+    if(typeof t.notes !== "string") t.notes = "";
+    if(!Array.isArray(t.attachments)) t.attachments = [];
+    if(!t.kanbanStatus) t.kanbanStatus = t.completed ? "done" : "todo";
+    if(!Array.isArray(t.subtasks)) t.subtasks = [];
+    if(typeof t.timeSpent !== "number") t.timeSpent = 0;
+    if(typeof t.timerRunning !== "boolean") t.timerRunning = false;
+    if(t.timerRunning && !t.timerStartedAt) t.timerStartedAt = Date.now();
+    if(!t.timerRunning) t.timerStartedAt = null;
+});
+refreshCategorySelects();
+displayTasks();
+displayActivities();
+updateDashboard();
+renderCalendar();
+renderProjects();
+initProjectToolbar();
+refreshTagFilter();
+initKanban();
+initAnalytics();
+initPomodoro();
+initSmartReminders();
+initCloudSync();
+initAiAssistant();
+initTimeTracking();
+initMobileNavAndShortcuts();

@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TaskFlow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/dashboard.css">
+<link rel="stylesheet" href="css/tasks.css">
+<link rel="stylesheet" href="css/projects.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/kanban.css">
+<link rel="stylesheet" href="css/analytics.css">
+<link rel="stylesheet" href="css/settings.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body class="dark">
+
+<a href="#mainContent" class="skip-link">Skip to main content</a>
+
+<div id="loadingScreen">
+    <div class="loader-logo">🎯</div>
+    <div class="loader-bar"><div class="loader-fill"></div></div>
+    <p class="loader-text">Loading TaskFlow…</p>
+</div>
+
+<canvas id="particleCanvas"></canvas>
+<canvas id="confettiCanvas"></canvas>
+<div id="mouseGlow"></div>
+
+<div class="app-shell">
+
+    <!-- ===================== SIDEBAR ===================== -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <aside class="sidebar" id="sidebar">
+        <div class="brand">
+            <a href="index.html" class="brand" style="text-decoration:none;color:inherit;padding:0;">
+                <div class="brand-logo" aria-hidden="true">✔️</div>
+                <div>
+                    <h1>TaskFlow</h1>
+                    <small>Plan • Organize • Achieve</small>
+                </div>
+            </a>
+        </div>
+
+        <nav class="side-nav" aria-label="Main navigation">
+            <button class="nav-item active" data-target="dashboardTop" aria-current="page">
+                <span class="nav-icon" aria-hidden="true">▦</span> Dashboard
+            </button>
+            <button class="nav-item" data-target="tasksPanel">
+                <span class="nav-icon" aria-hidden="true">☑</span> Tasks
+            </button>
+            <button class="nav-item" data-target="calendarPanel">
+                <span class="nav-icon" aria-hidden="true">📅</span> Calendar
+            </button>
+            <button class="nav-item" data-target="projectsPanel">
+                <span class="nav-icon" aria-hidden="true">🏷</span> Projects
+            </button>
+            <button class="nav-item" data-target="kanbanPanel">
+                <span class="nav-icon" aria-hidden="true">📋</span> Kanban
+            </button>
+            <button class="nav-item" data-target="analyticsPanel">
+                <span class="nav-icon" aria-hidden="true">📊</span> Analytics
+            </button>
+            <button class="nav-item" data-target="activityPanel">
+                <span class="nav-icon" aria-hidden="true">🕓</span> Activity
+            </button>
+            <button class="nav-item" data-target="aiPanel">
+                <span class="nav-icon" aria-hidden="true">🤖</span> AI Assistant
+            </button>
+            <button class="nav-item" data-target="settingsPanel">
+                <span class="nav-icon" aria-hidden="true">⚙</span> Settings
+            </button>
+        </nav>
+
+        <div class="sidebar-progress">
+            <div class="progress-ring" id="progressRing">
+                <div class="progress-ring-inner">
+                    <span id="ringPercent">0%</span>
+                </div>
+            </div>
+            <h4>Overall Progress</h4>
+            <p id="progressHint">Add a task to get started!</p>
+            <p id="streakText">🔥 0 Day Streak</p>
+        </div>
+    </aside>
+
+    <!-- ===================== MAIN ===================== -->
+    <main class="main" id="mainContent">
+
+        <!-- TOPBAR -->
+        <header class="topbar">
+            <button id="hamburgerBtn" class="hamburger-btn" aria-label="Open navigation menu" aria-expanded="false" aria-controls="sidebar">☰</button>
+
+            <div class="topbar-search">
+                <span class="search-icon" aria-hidden="true">🔍</span>
+                <input type="text" id="searchInput" placeholder="Search tasks, categories..." aria-label="Search tasks and categories">
+                <kbd>/</kbd>
+            </div>
+
+            <div class="topbar-actions">
+                <button id="themeToggle" class="pill-btn" aria-label="Toggle dark/light theme">🌙 Dark <span class="chev" aria-hidden="true">▾</span></button>
+
+                <div class="dropdown-wrap">
+                    <button id="actionsBtn" class="pill-btn pill-btn-accent" aria-haspopup="true" aria-expanded="false" aria-controls="actionsMenu">⚡ Actions <span class="chev" aria-hidden="true">▾</span></button>
+                    <div class="dropdown-menu" id="actionsMenu" role="menu">
+                        <button id="exportPdf">📄 Export PDF</button>
+                        <button id="exportJson">💾 Export JSON</button>
+                        <button id="importJsonBtn">📂 Import JSON</button>
+                        <input type="file" id="importJson" accept=".json" hidden>
+                        <button id="clearCompletedBtn">🗑 Clear Completed</button>
+                        <button id="clearDateFilter">📅 All Dates</button>
+                    </div>
+                </div>
+
+                <button id="shortcutsBtn" class="icon-btn" aria-label="Show keyboard shortcuts" title="Keyboard shortcuts (?)">⌨</button>
+
+                <button id="notificationBtn" class="icon-btn" aria-label="View overdue notifications">
+                    🔔
+                    <span class="badge" id="notifBadge">0</span>
+                </button>
+
+                <div class="avatar" aria-hidden="true">🙂</div>
+            </div>
+        </header>
+
+        <div id="dashboardTop"></div>
+
+        <!-- HERO -->
+        <section class="hero-banner">
+            <div class="hero-text">
+                <h2 id="greeting">Good Morning! 👋</h2>
+                <p class="hero-date"><span id="todayDate"></span> <span class="hero-time-sep">·</span> 🕒 <span id="currentTime"></span></p>
+                <p class="hero-sub" id="heroSub">You have 0 tasks pending. Let's make today productive!</p>
+            </div>
+            <div class="hero-art">
+                <div class="hero-blob"></div>
+                <div class="hero-emoji">🚀</div>
+                <span class="sparkle s1">✦</span>
+                <span class="sparkle s2">✦</span>
+                <span class="sparkle s3">✦</span>
+            </div>
+        </section>
+
+        <!-- STATS -->
+        <section class="stats-row" id="statsRow">
+            <div class="stat-card">
+                <div class="stat-icon icon-total">📋</div>
+                <div><h2 id="totalTasks">0</h2><p>Total Tasks</p></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon icon-completed">✅</div>
+                <div><h2 id="completedTasks">0</h2><p>Completed</p></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon icon-pending">⌛</div>
+                <div><h2 id="pendingTasks">0</h2><p>Pending</p></div>
+            </div>
+            <div class="stat-card clickable" onclick="filterHighPriority()">
+                <div class="stat-icon icon-high">🔥</div>
+                <div><h2 id="highTasks">0</h2><p>High Priority</p></div>
+            </div>
+            <div class="stat-card clickable" onclick="filterOverdue()">
+                <div class="stat-icon icon-overdue">⚠</div>
+                <div><h2 id="overdueTasks">0</h2><p>Overdue</p></div>
+            </div>
+            <div class="stat-card clickable" onclick="filterToday()">
+                <div class="stat-icon icon-today">📅</div>
+                <div><h2 id="todayTasks">0</h2><p>Due Today</p></div>
+            </div>
+        </section>
+
+        <!-- KANBAN BOARD -->
+        <section class="panel" id="kanbanPanel">
+            <div class="panel-head">
+                <h3 class="panel-title">Kanban Board</h3>
+                <p class="muted" style="font-size:12.5px;">Drag cards between columns to update progress</p>
+            </div>
+            <div class="kanban-board">
+                <div class="kanban-col" data-status="todo">
+                    <h4 class="kanban-col-title">📝 To Do <span class="kanban-count" id="kanbanCountTodo">0</span></h4>
+                    <div class="kanban-cards" id="kanbanTodo"></div>
+                </div>
+                <div class="kanban-col" data-status="inprogress">
+                    <h4 class="kanban-col-title">🚧 In Progress <span class="kanban-count" id="kanbanCountInprogress">0</span></h4>
+                    <div class="kanban-cards" id="kanbanInprogress"></div>
+                </div>
+                <div class="kanban-col" data-status="done">
+                    <h4 class="kanban-col-title">✅ Done <span class="kanban-count" id="kanbanCountDone">0</span></h4>
+                    <div class="kanban-cards" id="kanbanDone"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ANALYTICS -->
+        <section class="panel" id="analyticsPanel">
+            <div class="panel-head">
+                <h3 class="panel-title">Advanced Analytics</h3>
+            </div>
+            <div class="analytics-grid">
+                <div class="analytics-card">
+                    <h4>Priority Breakdown</h4>
+                    <canvas id="chartPriority"></canvas>
+                </div>
+                <div class="analytics-card">
+                    <h4>Status Overview</h4>
+                    <canvas id="chartStatus"></canvas>
+                </div>
+                <div class="analytics-card">
+                    <h4>Tasks by Project</h4>
+                    <canvas id="chartProjects"></canvas>
+                </div>
+                <div class="analytics-card">
+                    <h4>Completions — Last 7 Days</h4>
+                    <canvas id="chartTrend"></canvas>
+                </div>
+                <div class="analytics-card">
+                    <h4>Focus Sessions (Pomodoro)</h4>
+                    <div class="focus-stats">
+                        <div><span id="focusSessionsToday">0</span><small>Today</small></div>
+                        <div><span id="focusSessionsTotal">0</span><small>All time</small></div>
+                        <div><span id="focusMinutesTotal">0</span><small>Minutes focused</small></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI ASSISTANT -->
+        <section class="panel" id="aiPanel">
+            <div class="panel-head">
+                <h3 class="panel-title">🤖 AI Productivity Assistant</h3>
+            </div>
+            <p class="muted" style="font-size:13px;margin-bottom:14px;">
+                Ask about your tasks — get help prioritizing, planning your day, or breaking work down.
+                Runs entirely on your own task data, right in your browser — no account, no API key, and
+                nothing ever sent to a server.
+            </p>
+            <div class="ai-quick-actions">
+                <button class="ai-quick-btn" data-prompt="Prioritize my pending tasks and tell me what to do first, second, third, and why.">📌 Prioritize my day</button>
+                <button class="ai-quick-btn" data-prompt="Summarize my current workload across all projects in a few sentences.">🗒 Summarize workload</button>
+                <button class="ai-quick-btn" data-prompt="Which of my tasks are overdue or at risk, and what should I do about them?">⚠ Flag risks</button>
+                <button class="ai-quick-btn" data-prompt="Break my most complex pending task down into smaller subtasks.">🧩 Break down a task</button>
+                <button class="ai-quick-btn" data-prompt="Suggest a time-blocked schedule for my day.">🗓 Plan my day</button>
+                <button class="ai-quick-btn" data-prompt="Give me a weekly summary of what I completed and added.">📈 Weekly summary</button>
+            </div>
+            <div id="aiChatLog" class="ai-chat-log"></div>
+            <div class="ai-input-row">
+                <input type="text" id="aiChatInput" placeholder="Ask the AI assistant about your tasks...">
+                <button id="aiSendBtn" class="pill-btn pill-btn-accent">Send</button>
+            </div>
+        </section>
+
+        <!-- SETTINGS -->
+        <section class="panel" id="settingsPanel">
+            <div class="panel-head">
+                <h3 class="panel-title">⚙ Settings & Integrations</h3>
+            </div>
+
+            <div class="settings-block">
+                <h4>🔔 Smart Reminders</h4>
+                <p class="muted" style="font-size:13px;">Get a browser notification when a task is due soon, even if this tab isn't focused.</p>
+                <button id="enableNotifsBtn" class="pill-btn">Enable Browser Notifications</button>
+                <span id="notifStatus" class="muted" style="font-size:12px;margin-left:10px;"></span>
+            </div>
+
+            <div class="settings-block">
+                <h4>⏱ Pomodoro Settings</h4>
+                <div class="task-form-row">
+                    <div class="field"><span>💼</span><input type="number" id="pomodoroWorkMins" value="25" min="1" max="180" title="Work minutes"></div>
+                    <div class="field"><span>☕</span><input type="number" id="pomodoroBreakMins" value="5" min="1" max="60" title="Break minutes"></div>
+                    <button id="pomodoroSaveSettings" class="pill-btn">Save</button>
+                </div>
+            </div>
+
+            <div class="settings-block">
+                <h4>☁ Gmail Cloud Sync</h4>
+                <p class="muted" style="font-size:13px;">
+                    Sync your tasks across devices by signing in with your Gmail/Google account. Your backup is
+                    saved to a private, hidden folder in your Google Drive that only this app can read — nothing
+                    else in your Drive or inbox is touched. Create a free OAuth Client ID in the
+                    <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener">Google Cloud Console</a>
+                    (type: Web application, add this page's URL under Authorized JavaScript origins), paste it below, then sign in with Google.
+                </p>
+                <div class="task-form-row">
+                    <div class="field grow"><span>🆔</span><input type="text" id="googleClientId" placeholder="xxxxxxxx.apps.googleusercontent.com"></div>
+                </div>
+                <div class="settings-actions">
+                    <button id="googleSaveConfig" class="pill-btn">Save Client ID</button>
+                    <button id="googleSignInBtn" class="pill-btn">👤 Sign in with Gmail</button>
+                    <button id="googleSignOutBtn" class="pill-btn">Sign out</button>
+                </div>
+                <div class="settings-actions">
+                    <button id="cloudPushBtn" class="pill-btn pill-btn-accent">⬆ Push to Cloud</button>
+                    <button id="cloudPullBtn" class="pill-btn">⬇ Pull from Cloud</button>
+                    <span id="cloudSyncStatus" class="muted" style="font-size:12px;"></span>
+                </div>
+            </div>
+        </section>
+
+        <!-- CONTENT GRID -->
+        <div class="content-grid">
+
+            <!-- LEFT COLUMN -->
+            <div class="col-main">
+
+                <section class="panel" id="createTaskPanel">
+                    <h3 class="panel-title">Create New Task</h3>
+                    <div class="task-form-row">
+                        <div class="field grow"><span>📝</span><input type="text" id="taskInput" placeholder="What needs to be done?"></div>
+                        <div class="field"><span>📅</span><input type="date" id="startDate" title="Start date"></div>
+                        <div class="field"><span>🕒</span><input type="time" id="startTime" title="Start time"></div>
+                        <div class="field"><span>🎯</span><input type="date" id="deadlineDate" title="Due date"></div>
+                        <div class="field"><span>⏰</span><input type="time" id="deadlineTime" title="Due time"></div>
+                        <div class="field"><span>🚩</span>
+                            <select id="priority">
+                                <option value="High">High</option>
+                                <option value="Medium" selected>Medium</option>
+                                <option value="Low">Low</option>
+                            </select>
+                        </div>
+                        <div class="field">
+    <span>📂</span>
+    <!-- Options are populated dynamically from the Projects list (see js/projects.js: refreshCategorySelects) -->
+    <select id="category"></select>
+</div>
+                        <div class="field">
+    <span>🔁</span>
+    <select id="repeatTask">
+        <option value="none" selected>No Repeat</option>
+        <option value="daily">🔁 Daily</option>
+        <option value="weekly">📅 Weekly</option>
+        <option value="monthly">🗓 Monthly</option>
+        <option value="yearly">📆 Yearly</option>
+    </select>
+</div>
+                        <button id="addTaskBtn">+ Add Task</button>
+                    </div>
+                    <div class="task-form-row" style="margin-top:12px;">
+                        <div class="field grow"><span>🏷</span><input type="text" id="taskTags" placeholder="Tags (comma separated, e.g. urgent, client-x)"></div>
+                        <div class="field" style="height:auto;padding:10px 14px;">
+                            <span>📎</span>
+                            <input type="file" id="taskAttachments" multiple style="height:auto;">
+                        </div>
+                    </div>
+                    <div style="margin-top:12px;">
+                        <div class="notes-toolbar">
+                            <button type="button" title="Bold" onclick="wrapNotesSelection('**')"><b>B</b></button>
+                            <button type="button" title="Italic" onclick="wrapNotesSelection('*')"><i>I</i></button>
+                            <button type="button" title="Bulleted list" onclick="prefixNotesLines('- ')">☰</button>
+                        </div>
+                        <div class="field grow" style="height:auto;padding:12px 14px;align-items:flex-start;">
+                            <span>📝</span>
+                            <textarea id="taskNotes" placeholder="Notes / description (optional) — supports **bold**, *italic*, - lists" rows="2" style="border:none;outline:none;background:transparent;color:var(--text);font-size:14px;width:100%;resize:vertical;font-family:inherit;"></textarea>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="panel" id="tasksPanel">
+                    <div class="panel-head">
+                        <h3 class="panel-title">Your Tasks</h3>
+                        <div class="task-filters">
+                            <!-- Populated dynamically from the Projects list -->
+                            <select id="categoryFilter">
+                                <option value="">All Projects</option>
+                            </select>
+                            <select id="tagFilter">
+                                <option value="">All Tags</option>
+                            </select>
+                            <select id="statusFilter">
+                                <option value="All">All Status</option>
+                                <option value="Pending">⏳ Pending</option>
+                                <option value="Completed">✅ Completed</option>
+                                <option value="Overdue">⚠ Overdue</option>
+                            </select>
+                            <select id="sortTasks">
+                                <option value="default">Sort By</option>
+                                <option value="priority">Priority</option>
+                                <option value="date">Due Date</option>
+                                <option value="name">Name (A-Z)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <ul id="taskList"></ul>
+                </section>
+
+                <section class="panel" id="projectsPanel">
+                    <div class="panel-head">
+                        <h3 class="panel-title">Projects</h3>
+                        <div class="project-toolbar">
+                            <input type="text" id="projectSearchInput" placeholder="🔍 Search projects...">
+                            <label class="archive-toggle">
+                                <input type="checkbox" id="showArchivedToggle"> Show archived
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="project-stats-bar" id="projectStatsBar"></div>
+
+                    <div id="projectsList"></div>
+
+                    <div class="project-form-row">
+                        <input type="text" id="projectNameInput" placeholder="Project name">
+                        <div class="icon-picker-wrap">
+                            <input type="text" id="projectIconInput" placeholder="📁" maxlength="2" readonly>
+                            <div class="icon-picker-menu" id="iconPickerMenu"></div>
+                        </div>
+                        <input type="color" id="projectColorInput" value="#7c3aed">
+                        <input type="text" id="projectDescInput" placeholder="Short description (optional)">
+                        <button id="addProjectBtn">+ Add Project</button>
+                    </div>
+                </section>
+            </div>
+
+            <!-- RIGHT COLUMN -->
+            <div class="col-side">
+
+                <section class="panel" id="calendarPanel">
+                    <div class="panel-head">
+                        <h3 class="panel-title">Calendar</h3>
+                        <div class="calendar-nav">
+                            <button id="calPrev" aria-label="Previous month">‹</button>
+                            <span id="calLabel">Month Year</span>
+                            <button id="calNext" aria-label="Next month">›</button>
+                        </div>
+                    </div>
+                    <p class="muted" style="font-size:11.5px;margin-bottom:8px;">Click a day to filter tasks · Shift+click to quick-add a task due that day</p>
+                    <div class="calendar-grid" id="calendarGrid"></div>
+                </section>
+
+                <section class="panel" id="activityPanel">
+                    <div class="panel-head">
+                        <h3 class="panel-title">Recent Activity</h3>
+                    </div>
+                    <div id="activityList"><p class="muted">No recent activity.</p></div>
+                </section>
+
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<div class="shortcuts-overlay" id="shortcutsOverlay">
+    <div class="shortcuts-modal" role="dialog" aria-modal="true" aria-labelledby="shortcutsTitle">
+        <h3 id="shortcutsTitle">⌨ Keyboard Shortcuts</h3>
+        <dl>
+            <dt><kbd>/</kbd></dt><dd>Focus search</dd>
+            <dt><kbd>N</kbd></dt><dd>Focus "new task" input</dd>
+            <dt><kbd>Esc</kbd></dt><dd>Close menus / dialogs, blur input</dd>
+            <dt><kbd>?</kbd></dt><dd>Toggle this shortcuts panel</dd>
+            <dt><kbd>1</kbd>–<kbd>9</kbd></dt><dd>Jump to a section in the sidebar</dd>
+        </dl>
+        <button class="pill-btn shortcuts-close" id="shortcutsCloseBtn">Close</button>
+    </div>
+</div>
+
+<div id="pomodoroWidget" class="pomodoro-widget collapsed">
+    <button id="pomodoroToggle" class="pomodoro-toggle" aria-label="Toggle Pomodoro timer widget">⏱</button>
+    <div class="pomodoro-body">
+        <div class="pomodoro-mode" id="pomodoroMode">Focus</div>
+        <div class="pomodoro-time" id="pomodoroTime">25:00</div>
+        <select id="pomodoroTaskSelect"><option value="">No task selected</option></select>
+        <div class="pomodoro-controls">
+            <button id="pomodoroStartPause">▶ Start</button>
+            <button id="pomodoroReset">↺ Reset</button>
+            <button id="pomodoroSkip">⏭ Skip</button>
+        </div>
+    </div>
+</div>
+
+<!--
+  Loaded as plain scripts (no bundler) so the load order below IS the
+  dependency order: state first, then modules that read/write it.
+  Everything still shares one global scope, same as the original single-file
+  version — this is just that file split along its natural feature seams.
+-->
+<script src="js/state.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/projects.js"></script>
+<script src="js/activity.js"></script>
+<script src="js/rich-notes.js"></script>
+<script src="js/tasks.js"></script>
+<script src="js/subtasks.js"></script>
+<script src="js/time-tracking.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/calendar.js"></script>
+<script src="js/ui-feedback.js"></script>
+<script src="js/import-export.js"></script>
+<script src="js/ui-interactions.js"></script>
+<script src="js/keyboard-shortcuts.js"></script>
+<script src="js/effects.js"></script>
+<script src="js/kanban.js"></script>
+<script src="js/analytics.js"></script>
+<script src="js/pomodoro.js"></script>
+<script src="js/notifications.js"></script>
+<script src="js/cloud-sync.js"></script>
+<script src="js/ai-assistant.js"></script>
+<script src="js/init.js"></script>
+</body>
+</html>

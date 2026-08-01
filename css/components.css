@@ -1,0 +1,217 @@
+/*================================================== TOAST ==================================================*/
+#toast{
+    position:fixed;bottom:26px;right:26px;min-width:260px;padding:15px 22px;border-radius:14px;color:white;font-size:14px;
+    font-weight:600;box-shadow:0 20px 45px rgba(0,0,0,.35);opacity:0;transform:translateY(20px);
+    transition:.35s;z-index:99999;pointer-events:none;background:#334155;
+}
+#toast.show{opacity:1;transform:translateY(0);}
+
+/*================================================== ANIMATIONS ==================================================*/
+@keyframes riseIn{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+@keyframes floatY{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+@keyframes twinkle{0%,100%{opacity:.2;transform:scale(.8);}50%{opacity:1;transform:scale(1.15);}}
+
+.hero-banner{animation-delay:.05s;}
+.stats-row .stat-card:nth-child(1){animation-delay:.08s;}
+.stats-row .stat-card:nth-child(2){animation-delay:.13s;}
+.stats-row .stat-card:nth-child(3){animation-delay:.18s;}
+.stats-row .stat-card:nth-child(4){animation-delay:.23s;}
+.stats-row .stat-card:nth-child(5){animation-delay:.28s;}
+.stats-row .stat-card:nth-child(6){animation-delay:.33s;}
+.col-main .panel:nth-child(1){animation-delay:.2s;}
+.col-main .panel:nth-child(2){animation-delay:.3s;}
+.col-side .panel:nth-child(1){animation-delay:.25s;}
+.col-side .panel:nth-child(2){animation-delay:.35s;}
+
+@media (prefers-reduced-motion: reduce){
+    *{animation:none !important;transition:none !important;}
+}
+
+/*================================================== RESPONSIVE ==================================================*/
+@media (max-width:1200px){
+    .content-grid{grid-template-columns:1fr;}
+    .stats-row{grid-template-columns:repeat(3,1fr);}
+}
+@media (max-width:960px){
+    .app-shell{grid-template-columns:1fr;}
+}
+@media (max-width:700px){
+    .stats-row{grid-template-columns:repeat(2,1fr);}
+    #taskList li{flex-direction:column;align-items:stretch;}
+    .task-actions{justify-content:flex-end;}
+    .task-form-row{flex-direction:column;align-items:stretch;}
+    .task-form-row .field{width:100%;}
+}
+@media (max-width:480px){
+    .stats-row{grid-template-columns:1fr;}
+}
+
+@keyframes auroraMove{
+
+    0%{
+
+        transform:translate(0,0) rotate(0deg);
+
+    }
+
+    50%{
+
+        transform:translate(220px,-120px) rotate(180deg);
+
+    }
+
+    100%{
+
+        transform:translate(0,0) rotate(360deg);
+
+    }
+
+}
+
+@keyframes floatingGlow{
+
+    0%,100%{
+
+        transform:translate(0);
+
+    }
+
+    50%{
+
+        transform:translate(350px,-180px);
+
+    }
+
+}
+@keyframes sidebarGlow{
+
+    0%,100%{
+
+        transform:translateY(0);
+
+        opacity:.8;
+
+    }
+
+    50%{
+
+        transform:translateY(90px);
+
+        opacity:1;
+
+    }
+
+}
+
+/*==================== DRAG & DROP ====================*/
+
+#taskList li{
+
+    cursor:grab;
+
+}
+
+#taskList li:active{
+
+    cursor:grabbing;
+
+}
+
+.dragging{
+
+    opacity:.45;
+
+    transform:rotate(2deg) scale(.98);
+
+}
+
+@keyframes pulseDue{
+
+    0%{
+
+        box-shadow:0 0 0 rgba(245,158,11,0);
+
+    }
+
+    50%{
+
+        box-shadow:0 0 20px rgba(245,158,11,.35);
+
+    }
+
+    100%{
+
+        box-shadow:0 0 0 rgba(245,158,11,0);
+
+    }
+
+}
+
+/*================================================== TAGS ==================================================*/
+.tag-chip{
+    display:inline-flex;align-items:center;gap:4px;background:var(--card-2);border:1px solid var(--border);
+    color:var(--text-light);font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;
+}
+.task-notes-preview{
+    font-size:12.5px;color:var(--text-light);margin-top:6px;padding:8px 12px;background:var(--card-2);
+    border-radius:10px;border-left:3px solid var(--primary);white-space:pre-wrap;
+}
+.task-attachments{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
+.attachment-chip{
+    display:inline-flex;align-items:center;gap:5px;background:var(--card-2);border:1px solid var(--border);
+    color:var(--text);font-size:11.5px;padding:4px 10px;border-radius:8px;text-decoration:none;
+}
+.attachment-chip:hover{background:var(--primary);color:#fff;}
+
+/*================================================== EMPTY STATES (Phase 1) ==================================================*/
+.empty-state{
+    display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;
+    padding:var(--space-9) var(--space-5); gap:var(--space-2); color:var(--text-light);
+    animation:riseIn .4s ease both;
+}
+.empty-state .empty-icon{ font-size:44px; line-height:1; margin-bottom:var(--space-2); opacity:.85; }
+.empty-state p{ font-size:var(--fs-base); max-width:320px; line-height:var(--lh-normal); }
+.empty-state .empty-title{ font-size:var(--fs-md); font-weight:700; color:var(--text); }
+.empty-state .empty-hint{ font-size:var(--fs-xs); opacity:.75; }
+.kanban-cards .empty-state{ padding:var(--space-6) var(--space-3); }
+.kanban-cards .empty-state .empty-icon{ font-size:28px; }
+
+/*================================================== KEYBOARD SHORTCUTS MODAL (Phase 1) ==================================================*/
+.shortcuts-overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:5000; display:none;
+    align-items:center; justify-content:center; padding:20px;
+}
+.shortcuts-overlay.show{ display:flex; }
+.shortcuts-modal{
+    background:var(--card); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow);
+    max-width:440px; width:100%; padding:var(--space-6); max-height:80vh; overflow:auto;
+}
+.shortcuts-modal h3{ font-size:var(--fs-lg); margin-bottom:var(--space-4); }
+.shortcuts-modal dl{ display:grid; grid-template-columns:auto 1fr; gap:var(--space-3) var(--space-4); align-items:center; }
+.shortcuts-modal dt kbd{
+    background:var(--card-2); border:1px solid var(--border); border-radius:6px; padding:3px 8px;
+    font-size:12px; font-family:inherit; font-weight:700;
+}
+.shortcuts-modal dd{ font-size:var(--fs-sm); color:var(--text-light); }
+.shortcuts-close{ margin-top:var(--space-5); width:100%; }
+
+/*================================================== RICH NOTES TOOLBAR (Phase 2) ==================================================*/
+.notes-toolbar{ display:flex; gap:6px; margin-bottom:6px; }
+.notes-toolbar button{
+    width:28px; height:28px; border-radius:7px; border:1px solid var(--border); background:var(--card-2);
+    color:var(--text); font-size:12.5px; cursor:pointer;
+}
+.notes-toolbar button:hover{ background:var(--primary); color:#fff; }
+.task-notes-preview strong{ color:var(--text); }
+.task-notes-preview ul{ margin:4px 0 0 18px; }
+
+/*================================================== TASK HISTORY (Phase 2) ==================================================*/
+.task-history-toggle{ font-size:var(--fs-xs); color:var(--text-light); background:none; border:none; cursor:pointer; margin-top:6px; text-decoration:underline; text-underline-offset:2px; }
+.task-history-panel{ margin-top:6px; padding:8px 12px; background:var(--card-2); border-radius:10px; font-size:12px; color:var(--text-light); display:flex; flex-direction:column; gap:4px; }
+
+/*================================================== SUGGESTED SCHEDULE (Phase 3) ==================================================*/
+.ai-schedule-block{ background:var(--card-2); border-radius:10px; padding:10px 12px; margin:6px 0; font-size:13px; }
+.ai-schedule-row{ display:flex; gap:10px; padding:4px 0; border-bottom:1px dashed var(--border); }
+.ai-schedule-row:last-child{ border-bottom:none; }
+.ai-schedule-time{ font-weight:700; color:var(--primary); min-width:74px; }
+
